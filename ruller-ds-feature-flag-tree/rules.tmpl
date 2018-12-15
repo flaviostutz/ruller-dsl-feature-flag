@@ -1,0 +1,17 @@
+package main
+
+import (
+	"github.com/Sirupsen/logrus"
+	"github.com/flaviostutz/ruller/ruller"
+)
+
+func main() {
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.Infof("====Starting Ruller Sample====")
+    
+    {{range .}}
+{{ template "simple.tmpl" . }}
+    {{end}}
+
+	ruller.StartServer()
+}

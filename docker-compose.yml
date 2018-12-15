@@ -1,0 +1,11 @@
+version: '3.5'
+
+services:
+
+  sample-rules:
+    build: .
+    image: flaviostutz/ruller-sample-rules
+    environment:
+      - LOG_LEVEL=info
+    ports:
+      - 3000:3000
