@@ -1,0 +1,45 @@
+{
+    "label": "not specified",
+    "_config": {
+        "seed ": 123,
+        "default_condition": true
+    },
+    "_groups": [
+        {"engineersid":["12","34","32","33","333","211"]},
+        {"targetids":"/opt/targets.array"}
+    ],
+    "_items": [{
+            "label": "menu1",
+            "_items": [{
+                    "label": "menu1.1",
+                    "uri": "/menu1.1",
+                    "_condition": "before('2018-12-31 23:32:21')"
+                },
+                {
+                    "label": "menu1.2",
+                    "_condition ": "input:idade > 30 and random(30,input:customerid) or find(input:customerid,group:engineersid)",
+                    "_items": [{
+                            "label": "menu1.2.1 "
+                        },
+                        {
+                            "label": "menu1.2.2",
+                            "_condition": "random(20)"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "label": "menu2",
+            "_condition": "input:_ip_city=='Brasília'",
+            "_items": [{
+                    "label": "menu2.1",
+                    "_condition": "after('2018-11-31 23:32:21') or input:state~='DF|RJ'"
+                },
+                {
+                    "label": "menu2.2"
+                }
+            ]
+        }
+    ]
+}

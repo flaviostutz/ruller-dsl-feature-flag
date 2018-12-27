@@ -1,0 +1,51 @@
+{
+    "_config": {
+        "seed": 123,
+        "default_condition": true,
+        "flatten_output": true,
+        "merge_keep_first": true
+    },
+    "_items": [{
+            "provider": "aws",
+            "_condition": "random(10, input:customerid)",
+            "_items": [{
+                    "region": "sa-east-1",
+                    "login": "login.sa-east-1.test.com",
+                    "bootcamp": "bootcamp.sa-east-1.test.com",
+                    "_condition": "input:_ip_country=='Brazil'"
+                },
+                {
+                    "region": "us-west-1",
+                    "login": "login.us-west-1.test.com",
+                    "events": "events.us-west-1.test.com",
+                    "bootcamp": "bootcamp.us-west-1.test.com"
+                }
+            ]
+        },
+        {
+            "provider": "azure",
+            "_condition": "random(10, 50, input:customerid)",
+            "_items": [{
+                    "region": "azure-brazil",
+                    "login": "login.azure-brazil.test.com",
+                    "_condition": "input:_country=='Brazil'"
+                },
+                {
+                    "region": "azure-ny",
+                    "login": "login.azure-ny.test.com",
+                    "events": "events.azure-ny.test.com",
+                    "bootcamp": "bootcamp.azure-ny.test.com"
+                }
+            ]
+        },
+        {
+            "provider": "vpsdime",
+            "_items": [{
+                "region": "vpsdime",
+                "login": "login.vpsdime.test.com",
+                "events": "events.azure-ny.test.com",
+                "bootcamp": "bootcamp.azure-ny.test.com"
+            }]
+        }
+    ]
+}

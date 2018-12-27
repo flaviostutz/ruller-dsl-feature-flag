@@ -1,0 +1,41 @@
+input:idade > 30 and (random(30,input:customerid) or random(10)) and (after('2018-11-31 23:32:21') and (before('2018-12-31 23:32:21')) or input:_ip_city=='Brasília')
+
+//PRE CHECKS ON REST SERVER
+//locate all rules conditions, search for "input:" and create some sanity checks before invoking rules
+idade, err := tofloat(input["idade"])
+if err!=nil {
+    return fmt.Errorf("'idade' is required and must be a number. value=%v", input["idade"])
+}
+idade, err := tofloat(input["customerid"])
+if err!=nil {
+    return fmt.Errorf("'customerid' is required and must be a number. value=%v", input["customerid"])
+}
+
+//GROUP VARIABLES
+//find all group definition in "config" and create a variable for each group with group file contents inline
+group["engineersid"] := ["238773", "2332", "233232", "32322423"]
+
+//RULE IMPLEMENTATION
+
+//replace "input" anchors
+
+//find rules with float cast need and add the cast to the string
+////"input:idade > 30" - "input:([-_a-z0-9]+)\s*[><==]\s*[0-9]+" -> "input:idade.(float64) > 30"
+
+//find rules that were not cast to float and cast them to string
+////"input:name == "" - "input:[-_a-z0-9]+\s*[><==]+\s*[0-9]+" -> input:name.(string) == "abc"
+
+//locate all input references and change to input["attribute"]
+////"input:idade.(float64) > 30" - "input:([-_a-z0-9]+)" -> "input["idade"].(float64) > 30"
+input["idade"].(float64) > 30 and (randomByAttribute(30,input["customerid"]) or random(10)) and (after('2018-11-31 23:32:21') and (before('2018-12-31 23:32:21')) or input["_ip_city"]=='Brasília')
+
+//handle geoip queries
+//"input:_ip_city=="Brasília"" -> "input:_ip_city" -> geoip(input["_http_source_ip"])=="Brasília"
+
+//replace "or" by "||" and "and" by "&&"
+
+//replace group definitions by existing array
+////"find(input:customerid,groups:engineersid)" - "groups:[a-z0-9]+" - find(input["customerid"],groups["engineersid"])
+
+
+

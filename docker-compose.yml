@@ -2,10 +2,8 @@ version: '3.5'
 
 services:
 
-  sample-rules:
+  ruller-dsl-feature-flag:
     build: .
-    image: flaviostutz/ruller-sample-rules
+    image: flaviostutz/ruller-dsl-feature-flag
     environment:
       - LOG_LEVEL=info
-    ports:
-      - 3000:3000

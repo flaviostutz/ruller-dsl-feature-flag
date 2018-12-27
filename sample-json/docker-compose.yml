@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+
+  sample-rules:
+    build: .
+    environment:
+      - LOG_LEVEL=info
+    depends_on: 
+      - ruller-dsl-feature-flag
+
+  ruller-dsl-feature-flag:
+    build: ..
+    image: flaviostutz/ruller-dsl-feature-flag
+    environment:
+      - LOG_LEVEL=info
