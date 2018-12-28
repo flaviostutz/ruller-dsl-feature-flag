@@ -1,17 +1,21 @@
 package main
 
 import (
-	_ "errors"
+
+	_ "bytes"
+	_ "encoding/json"
 	_ "flag"
 	"fmt"
-	_ "os"
-	_ "path/filepath"
 	_ "text/template"
-
-	_ "github.com/Sirupsen/logrus"
-	_ "github.com/gorilla/mux"
+	_ "io/ioutil"
+	_ "os"
+	_ "reflect"
+	_ "regexp"
+	_ "strings"
 
 	_ "github.com/flaviostutz/ruller/ruller"
+
+	_ "github.com/Sirupsen/logrus"
 )
 
 func main() {

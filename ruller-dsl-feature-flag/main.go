@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
+	"text/template"
 
 	"github.com/flaviostutz/ruller/ruller"
 
@@ -133,6 +133,7 @@ func main() {
 
 	logrus.Debugf("Generating Go code")
 	sourceCode, err := executeTemplate("/opt/templates", "main.tmpl", jsonRulesMap)
+	logrus.Debugf("SOURCE CODE:\\n%s", sourceCode)
 	if err != nil {
 		panic(err)
 	}

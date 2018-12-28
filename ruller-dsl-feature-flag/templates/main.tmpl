@@ -1,8 +1,19 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/binary"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"regexp"
+	"strings"
+	"unicode"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/flaviostutz/ruller/ruller"
+
+	version "github.com/hashicorp/go-version"
 )
 
 var (
@@ -23,8 +34,8 @@ func main() {
 	loadGroupArray(groups, "simples", []string{"245"})
 
 	//when set inline in json
-	loadGroupFromFile(groups, "hugeids", "/opt/hugeids.txt")
-	loadGroupFromFile(groups, "other", "/opt/other.txt")
+	loadGroupFromFile(groups, "hugeids", "/opt/group1.txt")
+	loadGroupFromFile(groups, "other", "/opt/group1.txt")
 
 	//REQUIRED INPUTS
 	ruller.AddRequiredInput("menu", "_remote_ip", ruller.String)
@@ -106,3 +117,6 @@ func main() {
 
 	ruller.StartServer()
 }
+
+{{ template "utils.tmpl" . }}
+

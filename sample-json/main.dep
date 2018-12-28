@@ -1,20 +1,19 @@
 package main
 
 import (
-	_ "errors"
-	_ "flag"
-	"fmt"
-	_ "os"
-	_ "path/filepath"
-	_ "text/template"
 	_ "crypto/md5"
+	_ "encoding/binary"
+	"fmt"
+	_ "io/ioutil"
+	_ "os"
+	_ "regexp"
+	_ "strings"
+	_ "unicode"
 
 	_ "github.com/Sirupsen/logrus"
-	_ "github.com/gorilla/mux"
-	_ "github.com/hashicorp/go-version"
-	_ "github.com/stretchr/testify/assert"
-
 	_ "github.com/flaviostutz/ruller/ruller"
+
+	_ "github.com/hashicorp/go-version"
 )
 
 func main() {
