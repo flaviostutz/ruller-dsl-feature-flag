@@ -15,5 +15,5 @@ import (
 )
 
 func main() {
-	fmt.Println("This is used for build caching purposes. Should be replaced.")
+	fmt.Println("This is used for build caching purposes. Should be replaced")
 }

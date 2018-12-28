@@ -5,7 +5,7 @@ services:
   sample-rules:
     build: .
     environment:
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
     depends_on: 
       - ruller-dsl-feature-flag
 
@@ -13,4 +13,4 @@ services:
     build: ..
     image: flaviostutz/ruller-dsl-feature-flag
     environment:
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug

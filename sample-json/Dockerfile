@@ -9,9 +9,10 @@ RUN ruller-dsl-feature-flag \
     --target=/opt/main.go
 
 #just for build cache optimization
-ADD ../main.go $GOPATH/src/sample-rules/main.go
+ADD /main.dep $GOPATH/src/sample-rules/main.go
 RUN go get -v sample-rules
 
+#now build generated code
 RUN cp /opt/main.go $GOPATH/src/sample-rules/
 RUN go get -v sample-rules
 

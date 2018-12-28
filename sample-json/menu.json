@@ -17,7 +17,7 @@
                 },
                 {
                     "label": "menu1.2",
-                    "_condition ": "input:idade > 30 and random(30,input:customerid) or find(input:customerid,group:engineersid)",
+                    "_condition ": "input:idade > 30 and randomPerc(30,input:customerid) or contains(input:customerid,group:engineersid)",
                     "_items": [{
                             "label": "menu1.2.1 "
                         },
