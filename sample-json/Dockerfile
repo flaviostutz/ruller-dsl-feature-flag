@@ -4,7 +4,7 @@ ENV LOG_LEVEL 'info'
 ADD /domains.json /opt/
 ADD /menu.json /opt/
 RUN ruller-dsl-feature-flag \
-    --log-level=$LOG_LEVEL \
+    --log-level=debug \
     --source=/opt/domains.json,/opt/menu.json \
     --target=/opt/main.go
 

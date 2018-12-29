@@ -13,11 +13,11 @@
             "_items": [{
                     "label": "menu1.1",
                     "uri": "/menu1.1",
-                    "_condition": "before('2018-12-31 23:32:21')"
+                    "_condition": "before('2018-12-31 23:32:21') and versionCheck(input:app_version, '1.3, 4.5')"
                 },
                 {
                     "label": "menu1.2",
-                    "_condition ": "input:idade > 30 and randomPerc(30,input:customerid) or contains(input:customerid,group:engineersid)",
+                    "_condition": "input:idade > 30 and randomPerc(30,input:customerid) or contains(input:customerid,group:engineersid)",
                     "_items": [{
                             "label": "menu1.2.1 "
                         },

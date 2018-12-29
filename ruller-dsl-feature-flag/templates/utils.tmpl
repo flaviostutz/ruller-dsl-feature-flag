@@ -1,6 +1,7 @@
 var (
 	//use map so that we can find if an item is contained in array with O(1)
 	groups = make(map[string]map[string]bool)
+	seed = {{ index . "_config" "seed" }}
 )
 
 func stripWhitespaces(str string) string {
@@ -15,18 +16,26 @@ func stripWhitespaces(str string) string {
 }
 
 func after(datestr string) bool {
-	return false
+	time1, err := time.Parse(time.RFC3339, datestr)
+	if err != nil {
+		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
+	}
+	return time1.After(time.Now())
 }
 
 func before(datestr string) bool {
-	return false
+	time1, err := time.Parse(time.RFC3339, datestr)
+	if err != nil {
+		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
+	}
+	return time1.Before(time.Now())
 }
 
-func randomPerc(percent int, reference interface{}, seed int) bool {
-	return randomPercRange(0, percent, reference, seed)
+func randomPerc(percent int, reference interface{}) bool {
+	return randomPercRange(0, percent, reference)
 }
 
-func randomPercRange(fromPercent int, toPercent int, reference interface{}, seed int) bool {
+func randomPercRange(fromPercent int, toPercent int, reference interface{}) bool {
 	fromPerc := (fromPercent * 65535) / 100
 	toPerc := (toPercent * 65535) / 100
 	hashb := md5.Sum([]byte(fmt.Sprintf("%d%s", seed, reference)))

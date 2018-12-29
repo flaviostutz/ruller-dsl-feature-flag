@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 	"unicode"
 
 	version "github.com/hashicorp/go-version"
@@ -32,11 +33,19 @@ func stripWhitespaces(str string) string {
 }
 
 func after(datestr string) bool {
-	return false
+	time1, err := time.Parse(time.RFC3339, datestr)
+	if err != nil {
+		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
+	}
+	return time1.After(time.Now())
 }
 
 func before(datestr string) bool {
-	return false
+	time1, err := time.Parse(time.RFC3339, datestr)
+	if err != nil {
+		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
+	}
+	return time1.Before(time.Now())
 }
 
 func randomPerc(percent int, reference interface{}, seed int) bool {

@@ -3,11 +3,11 @@
         "seed": 123,
         "default_condition": true,
         "flatten_output": true,
-        "merge_keep_first": true
+        "keep_first": true
     },
     "_items": [{
             "provider": "aws",
-            "_condition": "random(10, input:customerid)",
+            "_condition": "randomPerc(10, input:customerid)",
             "_items": [{
                     "region": "sa-east-1",
                     "login": "login.sa-east-1.test.com",
@@ -24,7 +24,7 @@
         },
         {
             "provider": "azure",
-            "_condition": "random(10, 50, input:customerid)",
+            "_condition": "randomPercRange(10, 50, input:customerid)",
             "_items": [{
                     "region": "azure-brazil",
                     "login": "login.azure-brazil.test.com",

@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io/ioutil"
+	"time"
 	"os"
 	"regexp"
 	"strings"
@@ -16,16 +17,9 @@ import (
 	version "github.com/hashicorp/go-version"
 )
 
-var (
-	seed = 1234
-)
-
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
-	logrus.Infof("====Starting Ruller Sample====")
-
-	//OVERALL CONFIG
-	hashSeed := 12345
+	logrus.Infof("====Starting Rules Server====")
 
 	//INITIALIZE GROUPS
 
@@ -67,7 +61,7 @@ func main() {
 		// "_condition": "versionCheck(input:app_version, '>1.2.3, <=11.2.3')",
 
 		// "_condition ": "input:age > 30 and random(30,input:customerid)",
-		condition := ctx.Input["age"].(float64) > 30 && randomPercRange(10, 30, ctx.Input["customerid"].(string), hashSeed)
+		condition := ctx.Input["age"].(float64) > 30 && randomPercRange(10, 30, ctx.Input["customerid"].(string))
 		if condition {
 			output["label"] = "menu1.1"
 			output["uri"] = "/menu1/menu1.1"
