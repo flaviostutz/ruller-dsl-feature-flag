@@ -6,6 +6,8 @@ services:
     build: .
     environment:
       - LOG_LEVEL=debug
+    ports:
+      - 3000:3000
     depends_on: 
       - ruller-dsl-feature-flag
 

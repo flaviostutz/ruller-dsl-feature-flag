@@ -1,3 +1,4 @@
+// seed = {{ index . "_config "seed" }}
 package main
 
 import (
@@ -18,8 +19,7 @@ import (
 )
 
 var (
-	defaultConditionStr = "true"
-	inputTypes          = make(map[string]ruller.InputType)
+	mapid = 0
 )
 
 func main() {
@@ -72,12 +72,20 @@ func main() {
 	logrus.Debugf("json rules menu %s", jsonRulesMap["menu"])
 	logrus.Debugf("json rules domains %s", jsonRulesMap["domains"])
 
-	//CREATE CODE FOR EACH DSL
-	sourceCode := ""
-	for name, v := range jsonRulesMap {
+	//PREPARE MAP FOR EACH DSL
+	templateRulesMap := make(map[string]interface{})
+	for ruleGroupName, v := range jsonRulesMap {
+		logrus.Debugf("PROCESSING RULE GROUP %s", ruleGroupName)
 		jsonRules := v.(map[string]interface{})
-		//configurations
+		templateRule := make(map[string]interface{})
+		templateRulesMap[ruleGroupName] = templateRule
+
+		//PREPARE CONFIGURATIONS
+		logrus.Debugf("CONFIGURATIONS")
 		hashSeed := 1234
+		keepFirst := true
+		inputTypes := make(map[string]ruller.InputType)
+		defaultConditionStr := "true"
 		config, exists := jsonRules["_config"].(map[string]interface{})
 		if exists {
 			dc, exists := config["default_condition"]
@@ -87,48 +95,106 @@ func main() {
 				} else if reflect.ValueOf(dc).Kind() == reflect.Bool {
 					defaultConditionStr = fmt.Sprintf("%t", dc.(bool))
 				} else {
-					panic(fmt.Errorf("default_condition exists but is neither Bool or String type"))
+					panic(fmt.Errorf("_config default_condition exists but is neither Bool or String type"))
 				}
 			}
 
 			hs, exists := config["seed"]
 			if exists {
-				if reflect.ValueOf(dc).Kind() == reflect.Float64 {
+				if reflect.ValueOf(hs).Kind() == reflect.Float64 {
 					hashSeed = int(hs.(float64))
+				} else {
+					panic(fmt.Errorf("_config seed exists but is not Float64"))
+				}
+			}
+
+			kf, exists := config["keep_first"]
+			if exists {
+				if reflect.ValueOf(dc).Kind() == reflect.Bool {
+					keepFirst = kf.(bool)
 				} else {
 					panic(fmt.Errorf("default_condition exists but is not Float64"))
 				}
 			}
+
 		} else {
 			config = make(map[string]interface{})
-			jsonRules["_config"] = config
 		}
-		config["seed"] = hashSeed
+		// config["seed"] = hashSeed
+		config["keep_first"] = keepFirst
+		templateRule["_config"] = config
 
-		//convert "_condition" attribute to Go code
-		err := traverseRulesMap(jsonRules, func(ctxMap map[string]interface{}, fieldName string) error {
-			// logrus.Debugf("TRAVERSE %s", fieldName)
-			if fieldName == "_condition" {
-				conditionStr := ctxMap[fieldName]
-				ctxMap[fieldName] = conditionCode(conditionStr, inputTypes)
+		//PREPARE "_condition" ATTRIBUTES (generate Go code)
+		logrus.Debugf("_CONDITION ATTRIBUTES")
+		err := traverseConditionCode(jsonRules, defaultConditionStr, inputTypes, ruleGroupName, fmt.Sprintf("%d", hashSeed))
+		if err != nil {
+			panic(err)
+		}
+
+		// jsonRules["_inputTypes"] = inputTypes
+		templateRule["_ruleGroupName"] = ruleGroupName
+
+		//PREPARE GROUP DEFINITIONS
+		logrus.Debugf("GROUPS")
+		groupCodes := make(map[string]string)
+		groups, exists := jsonRules["_groups"].(map[string]interface{})
+		if exists {
+			//FIXME NEEDED?
+			// delete(groups, "_condition")
+			for gn, gv := range groups {
+				if strings.HasPrefix(gn, "_") {
+					continue
+				}
+				logrus.Debugf(">>>>GROUP %s %s", gn, gv)
+				t := reflect.TypeOf(gv)
+				if t.Kind() == reflect.Slice {
+					garray := ""
+					for _, v := range gv.([]interface{}) {
+						garray = garray + fmt.Sprintf("\"%s\",", v)
+					}
+					garray = strings.Trim(garray, ",")
+					groupCodes[gn] = fmt.Sprintf("loadGroupArray(groups, \"%s\", \"%s\", []string{%s})", ruleGroupName, gn, garray)
+
+				} else if reflect.ValueOf(gv).Kind() == reflect.String {
+					// loadGroupFromFile(groups, "hugeids", "/opt/group1.txt")
+					groupCodes[gn] = fmt.Sprintf("loadGroupFromFile(groups, \"%s\", \"%s\", \"%s\")", ruleGroupName, gn, gv.(string))
+
+				} else {
+					panic(fmt.Errorf("_groups %s exists but is neither an array of strings nor a string with a file path. rule group %s", gn, ruleGroupName))
+				}
 			}
-			return nil
-		}, defaultConditionStr)
-		if err != nil {
-			panic(err)
+		} else {
+			logrus.Debugf("No groups found")
 		}
+		templateRule["_groupCodes"] = groupCodes
 
-		logrus.Debugf("MAAAAAP %s", jsonRules)
-
-		logrus.Debugf("Generating Go code")
-		sourceCode, err = executeTemplate("/opt/templates", "main.tmpl", jsonRules)
-		if err != nil {
-			panic(err)
+		logrus.Debugf("REQUIRED INPUTS")
+		requiredInputCodes := make(map[string]string)
+		for in, it := range inputTypes {
+			icode := fmt.Sprintf("ruller.AddRequiredInput(\"%s\", \"%s\", ruller.%s)", ruleGroupName, in, typeName(it))
+			requiredInputCodes[in] = icode
 		}
+		templateRule["_requiredInputCodes"] = requiredInputCodes
+
+		//ORDERED RULES
+		logrus.Debugf("ORDERED RULES")
+		rules := make([]map[string]interface{}, 0)
+		logrus.Debugf("111111")
+		orderedRules(jsonRules, -1, ruleGroupName, &rules)
+		templateRule["_orderedRules"] = rules
+		logrus.Debugf("22222")
+
+		logrus.Debugf("templateRule %s", templateRule)
+	}
+
+	logrus.Debugf("Generating Go code")
+	sourceCode, err := executeTemplate("/opt/templates", "main.tmpl", templateRulesMap)
+	if err != nil {
+		panic(err)
 	}
 
 	logrus.Debugf("Write Go code to disk")
-	err := ioutil.WriteFile(*target, []byte(sourceCode), 0644)
+	err = ioutil.WriteFile(*target, []byte(sourceCode), 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -137,19 +203,21 @@ func main() {
 }
 
 func executeTemplate(dir string, templ string, input map[string]interface{}) (string, error) {
-	tmpl := template.Must(template.ParseGlob(dir + "/*.tmpl"))
+	tmpl := template.New("root").Funcs(template.FuncMap{
+		"hasPrefix": func(str string, prefix string) bool {
+			return strings.HasPrefix(str, prefix)
+		},
+	})
+	tmpl1, err := tmpl.ParseGlob(dir + "/*.tmpl")
 	buf := new(bytes.Buffer)
-	err := tmpl.ExecuteTemplate(buf, templ, input)
+	err = tmpl1.ExecuteTemplate(buf, templ, input)
 	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil
 }
 
-//FieldProcessor called in traverseMap
-type FieldProcessor func(contextMap map[string]interface{}, fieldName string) error
-
-func traverseRulesMap(map1 map[string]interface{}, processor FieldProcessor, defaultConditionStr string) error {
+func traverseConditionCode(map1 map[string]interface{}, defaultConditionStr string, inputTypes map[string]ruller.InputType, ruleGroupName string, seed string) error {
 	// logrus.Debugf("MMMMMMMMMM %s", map1)
 	conditionFound := false
 	for k, v := range map1 {
@@ -159,24 +227,56 @@ func traverseRulesMap(map1 map[string]interface{}, processor FieldProcessor, def
 			for _, i := range items {
 				if reflect.ValueOf(i).Kind() == reflect.Map {
 					rm := i.(map[string]interface{})
-					traverseRulesMap(rm, processor, defaultConditionStr)
+					traverseConditionCode(rm, defaultConditionStr, inputTypes, ruleGroupName, seed)
 				}
 			}
 		} else if reflect.ValueOf(v).Kind() == reflect.Map {
-			traverseRulesMap(v.(map[string]interface{}), processor, defaultConditionStr)
+			traverseConditionCode(v.(map[string]interface{}), defaultConditionStr, inputTypes, ruleGroupName, seed)
 		} else {
 			if k == "_condition" {
 				conditionFound = true
 			}
-			err := processor(map1, k)
-			if err != nil {
-				return err
+			// logrus.Debugf("TRAVERSE %s", fieldName)
+			if k == "_condition" {
+				conditionStr := map1[k]
+				map1["_conditionCode"] = conditionCode(conditionStr, inputTypes, ruleGroupName, seed)
 			}
 		}
 	}
 	if !conditionFound {
-		map1["_condition"] = conditionCode(defaultConditionStr, inputTypes)
+		map1["_conditionCode"] = conditionCode(defaultConditionStr, inputTypes, ruleGroupName, seed)
 	}
+	return nil
+}
+
+func orderedRules(map1 map[string]interface{}, parentid int, ruleGroupName string, rules *[]map[string]interface{}) error {
+	logrus.Debugf("orderedRules parentid=%d", parentid)
+	mapid = mapid + 1
+	map1["_id"] = mapid
+	map1["_parentid"] = fmt.Sprintf("%d", parentid)
+	map1["_ruleGroupName"] = ruleGroupName
+	*rules = append(*rules, map1)
+	for k, v := range map1 {
+		logrus.Debugf("attribute %s", k)
+		if k == "_items" || !strings.HasPrefix(k, "_") {
+			logrus.Debugf("attribute %s is valid rule", k)
+			if reflect.ValueOf(v).Kind() == reflect.Slice {
+				logrus.Debugf("attribute %s is an array", k)
+				items := v.([]interface{})
+				for _, i := range items {
+					if reflect.ValueOf(i).Kind() == reflect.Map {
+						rm := i.(map[string]interface{})
+						logrus.Debugf("attribute %s is an array of maps. calling recursive for item %s", k, i)
+						orderedRules(rm, mapid, ruleGroupName, rules)
+					}
+				}
+			} else if reflect.ValueOf(v).Kind() == reflect.Map {
+				logrus.Debugf("attribute %s is map. calling recursive", k)
+				orderedRules(v.(map[string]interface{}), mapid, ruleGroupName, rules)
+			}
+		}
+	}
+	logrus.Debugf("orderedRules ok")
 	return nil
 }
 
@@ -192,7 +292,7 @@ func typeName(inputType ruller.InputType) string {
 	}
 }
 
-func conditionCode(value interface{}, inputTypes map[string]ruller.InputType) string {
+func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ruleGroupName string, seed string) string {
 	if reflect.ValueOf(value).Kind() == reflect.String {
 		condition := value.(string)
 		// logrus.Debugf("CONDITION %s", condition)
@@ -200,6 +300,17 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType) st
 		//REGEX FUNC
 		regexExpreRegex := regexp.MustCompile("(input:[a-z0-9-_]+)\\s*~=\\s*'(.+)'")
 		condition = regexExpreRegex.ReplaceAllString(condition, "match($1,\"$2\")")
+
+		//GROUP REFERENCES TO STRING
+		//_condition="group:members" ---> ""members""
+		groupRegex := regexp.MustCompile("contains\\(\\s*group:([a-z0-9_-]+)\\s*,\\s*([0-9a-z:]+)\\s*\\)")
+		condition = groupRegex.ReplaceAllString(condition, "groupContains(\""+ruleGroupName+"\",\"$1\",$2)")
+
+		//RANDOM PERC REFERENCES
+		percRegex := regexp.MustCompile("randomPerc\\(\\s*([0-9]+)\\s*,\\s*([0-9a-z:]+)\\s*\\)")
+		condition = percRegex.ReplaceAllString(condition, "randomPerc($1,$2,"+seed+")")
+		perc2Regex := regexp.MustCompile("randomPercRange\\(\\s*([0-9]+),\\s*([0-9]+)\\s*,\\s*([0-9a-z:]+)\\s*\\)")
+		condition = perc2Regex.ReplaceAllString(condition, "randomPercRange($1,$2,$3,"+seed+")")
 
 		//ADD CASTS
 		//_condition="input:age > 30 and input:name='stutz'" ---> "input:age.(float64) > 30 and input:name.(string)=='stutz'"
@@ -236,6 +347,7 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType) st
 				if !strings.Contains(sm, ".") {
 					logrus.Debugf("Updating attribute '%s' to '%s'", sm, fmt.Sprintf("%s.(string)", sm))
 					condition = strings.Replace(condition, sm, fmt.Sprintf("%s.(string)", sm), -1)
+					condition = strings.Replace(condition, ".(string).(string)", ".(string)", -1)
 
 					//check and collect input types
 					it, exists := inputTypes[sm]
@@ -256,15 +368,11 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType) st
 		//GET INPUT FROM CONTEXT
 		//_condition="input:age > 30 and input:name='stutz'" ---> "ctx.Input["age"].(float64) > 30 and ctx.Input["name"].(string)=="stutz""
 		inputNameRegex := regexp.MustCompile("input:([a-z0-9-_]+)")
+		logrus.Debugf("CONDITION %s", condition)
 		condition = inputNameRegex.ReplaceAllString(condition, "ctx.Input[\"$1\"]")
 
-		//GROUP REFERENCES TO STRING
-		//_condition="group:members" ---> ""members""
-		groupRegex := regexp.MustCompile("group:([a-z0-9-_]+)")
-		condition = groupRegex.ReplaceAllString(condition, "\"$1\"")
-
 		//REPLACE OTHER CHARS
-		delimRegex := regexp.MustCompile("'(.*)'")
+		delimRegex := regexp.MustCompile("'([^']*)'")
 		condition = delimRegex.ReplaceAllString(condition, "\"$1\"")
 		condition = strings.Replace(condition, " and ", " && ", -1)
 		condition = strings.Replace(condition, " or ", " || ", -1)

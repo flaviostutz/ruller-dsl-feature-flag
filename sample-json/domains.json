@@ -2,7 +2,6 @@
     "_config": {
         "seed": 123,
         "default_condition": true,
-        "flatten_output": true,
         "keep_first": true
     },
     "_items": [{

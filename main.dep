@@ -14,6 +14,7 @@ import (
 	_ "strings"
 
 	_ "github.com/flaviostutz/ruller/ruller"
+	_ "github.com/hashicorp/go-version"
 
 	_ "github.com/Sirupsen/logrus"
 )

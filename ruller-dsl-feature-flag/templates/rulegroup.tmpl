@@ -1,0 +1,15 @@
+	//INITIALIZE GROUPS
+{{ range $gn, $gc := ._groupCodes }}
+	{{ $gc -}}
+{{- end }}
+
+	//REQUIRED INPUTS
+{{ range $in, $ic := ._requiredInputCodes }}
+	{{ $ic -}}
+{{- end }}
+
+	//ORDERED RULES
+{{ range ._orderedRules }}
+	{{ template "rule.tmpl" . -}}
+{{- end }}
+

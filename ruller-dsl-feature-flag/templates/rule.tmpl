@@ -1,0 +1,19 @@
+
+	//RULE {{._ruleGroupName}}:{{._id}} (parent:{{._parentid}})
+{{if eq ._parentid "-1"}}
+	ruller.Add("{{._ruleGroupName}}", "{{._id}}", func(ctx ruller.Context) (map[string]interface{}, error) {
+{{else}}
+	ruller.AddChild("{{._ruleGroupName}}", "{{._id}}", "{{._parentid}}", func(ctx ruller.Context) (map[string]interface{}, error) {
+{{end}}
+		condition := {{._conditionCode}}
+		if condition {
+			output := make(map[string]interface{})
+{{range $fn, $fv := .}}
+{{if not (hasPrefix $fn "_")}}
+			output["{{$fn}}"] = "{{$fv}}"
+{{end}}
+{{end}}
+			return output, nil
+		}
+		return nil, nil
+	})
