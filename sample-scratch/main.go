@@ -61,6 +61,16 @@ func main() {
 			output["label"] = "menu1.1"
 			output["uri"] = "/menu1/menu1.1"
 			output["component"] = "menu1"
+
+			output1 := make(map[string]interface{})
+			output["options"] = output1
+			output1["type"] = "brace"
+			output1["qtty"] = 123
+
+			output2 := make(map[string]interface{})
+			output1["advanced"] = output2
+			output2["tip1"] = "abc"
+			output2["tip2"] = "xyz"
 		}
 		return output, nil
 	})
@@ -70,7 +80,7 @@ func main() {
 
 	err = ruller.AddChild("menu", "menu1.2", "menu1", func(ctx ruller.Context) (map[string]interface{}, error) {
 		output := make(map[string]interface{})
-		condition := (after("2018-11-31 23:32:21") && before("2019-11-31 23:32:21")) ||
+		condition := (after("2018-11-30T23:32:21+00:00") && before("2019-11-31T23:32:21+00:00")) ||
 			(match(ctx.Input["state"].(string), "DF|RJ") && ctx.Input["_remote_ip"].(string) != "172.1.2.3") &&
 				ctx.Input["_ip_city"].(string) == "Brasília" &&
 				versionCheck(ctx.Input["app_version"].(string), ">1.2.3, <=11.2.3") || groupContains("hugeids", ctx.Input["customerid"].(string))

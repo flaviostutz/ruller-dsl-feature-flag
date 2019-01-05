@@ -20,6 +20,7 @@ func after(datestr string) bool {
 	if err != nil {
 		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
 	}
+	logrus.Debugf("DATE AFTER %s %s", time1, time.Now())
 	return time1.After(time.Now())
 }
 
@@ -28,6 +29,7 @@ func before(datestr string) bool {
 	if err != nil {
 		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
 	}
+	logrus.Debugf("DATE BEFORE %s %s", time1, time.Now())
 	return time1.Before(time.Now())
 }
 

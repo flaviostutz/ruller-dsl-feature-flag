@@ -9,9 +9,7 @@
 		if condition {
 			output := make(map[string]interface{})
 {{range $fn, $fv := .}}
-{{if not (hasPrefix $fn "_")}}
-			output["{{$fn}}"] = "{{$fv}}"
-{{end}}
+			{{attributeCode $fn $fv 0}}
 {{end}}
 			return output, nil
 		}

@@ -179,10 +179,8 @@ func main() {
 		//ORDERED RULES
 		logrus.Debugf("ORDERED RULES")
 		rules := make([]map[string]interface{}, 0)
-		logrus.Debugf("111111")
 		orderedRules(jsonRules, -1, ruleGroupName, &rules)
 		templateRule["_orderedRules"] = rules
-		logrus.Debugf("22222")
 
 		logrus.Debugf("templateRule %s", templateRule)
 	}
@@ -207,6 +205,7 @@ func executeTemplate(dir string, templ string, input map[string]interface{}) (st
 		"hasPrefix": func(str string, prefix string) bool {
 			return strings.HasPrefix(str, prefix)
 		},
+		"attributeCode": staticAttributeCode,
 	})
 	tmpl1, err := tmpl.ParseGlob(dir + "/*.tmpl")
 	buf := new(bytes.Buffer)
@@ -217,9 +216,54 @@ func executeTemplate(dir string, templ string, input map[string]interface{}) (st
 	return buf.String(), nil
 }
 
+func staticAttributeCode(attributeName string, attributeValue interface{}, depth int) string {
+	result := ""
+	mapvar := "output"
+	if depth > 0 {
+		mapvar = fmt.Sprintf("output%d", depth)
+	}
+
+	// output1 := make(map[string]interface{})
+	// output["options"] = output1
+	// output1["type"] = "brace"
+	// output1["qtty"] = 123
+
+	// output2 := make(map[string]interface{})
+	// output1["advanced"] = output2
+	// output2["tip1"] = "abc"
+	// output2["tip2"] = "xyz"
+
+	if reflect.ValueOf(attributeValue).Kind() == reflect.Map {
+		if attributeName == "_items" || !strings.HasPrefix(attributeName, "_") {
+			map1 := attributeValue.(map[string]interface{})
+			nextmapvar := fmt.Sprintf("output%d", depth+1)
+			result = result + fmt.Sprintf("%s := make(map[string]interface{})\n			", nextmapvar)
+			result = result + fmt.Sprintf("%s[\"%s\"] = %s\n			", mapvar, attributeName, nextmapvar)
+			for k, v := range map1 {
+				s := staticAttributeCode(k, v, depth+1)
+				result = result + s
+			}
+		}
+	} else {
+		if !strings.HasPrefix(attributeName, "_") {
+			if reflect.ValueOf(attributeValue).Kind() == reflect.Bool {
+				result = fmt.Sprintf("%s[\"%s\"] = %t\n			", mapvar, attributeName, attributeValue)
+			} else if reflect.ValueOf(attributeValue).Kind() == reflect.Float64 {
+				result = fmt.Sprintf("%s[\"%s\"] = %f\n			", mapvar, attributeName, attributeValue)
+			} else {
+				result = fmt.Sprintf("%s[\"%s\"] = \"%s\"\n			", mapvar, attributeName, attributeValue)
+			}
+		}
+	}
+	return result
+}
+
 func traverseConditionCode(map1 map[string]interface{}, defaultConditionStr string, inputTypes map[string]ruller.InputType, ruleGroupName string, seed string) error {
 	// logrus.Debugf("MMMMMMMMMM %s", map1)
-	conditionFound := false
+	// if map1 == nil {
+	// 	return nil
+	// }
+	createDefaultCondition := true
 	for k, v := range map1 {
 		// logrus.Debugf("KKKKKK %s %s", k, v)
 		if reflect.ValueOf(v).Kind() == reflect.Slice {
@@ -231,19 +275,19 @@ func traverseConditionCode(map1 map[string]interface{}, defaultConditionStr stri
 				}
 			}
 		} else if reflect.ValueOf(v).Kind() == reflect.Map {
-			traverseConditionCode(v.(map[string]interface{}), defaultConditionStr, inputTypes, ruleGroupName, seed)
+			if k == "_items" {
+				logrus.Debugf("Traversing condition for %s with child items", k)
+				traverseConditionCode(v.(map[string]interface{}), defaultConditionStr, inputTypes, ruleGroupName, seed)
+			}
 		} else {
 			if k == "_condition" {
-				conditionFound = true
-			}
-			// logrus.Debugf("TRAVERSE %s", fieldName)
-			if k == "_condition" {
+				createDefaultCondition = false
 				conditionStr := map1[k]
 				map1["_conditionCode"] = conditionCode(conditionStr, inputTypes, ruleGroupName, seed)
 			}
 		}
 	}
-	if !conditionFound {
+	if createDefaultCondition {
 		map1["_conditionCode"] = conditionCode(defaultConditionStr, inputTypes, ruleGroupName, seed)
 	}
 	return nil
@@ -258,8 +302,8 @@ func orderedRules(map1 map[string]interface{}, parentid int, ruleGroupName strin
 	*rules = append(*rules, map1)
 	for k, v := range map1 {
 		logrus.Debugf("attribute %s", k)
-		if k == "_items" || !strings.HasPrefix(k, "_") {
-			logrus.Debugf("attribute %s is valid rule", k)
+		if k == "_items" {
+			logrus.Debugf("attribute %s is a _items with children rules", k)
 			if reflect.ValueOf(v).Kind() == reflect.Slice {
 				logrus.Debugf("attribute %s is an array", k)
 				items := v.([]interface{})
@@ -274,9 +318,10 @@ func orderedRules(map1 map[string]interface{}, parentid int, ruleGroupName strin
 				logrus.Debugf("attribute %s is map. calling recursive", k)
 				orderedRules(v.(map[string]interface{}), mapid, ruleGroupName, rules)
 			}
+		} else if !strings.HasPrefix(k, "_") {
+			logrus.Debugf("attribute %s is a static rule member", k)
 		}
 	}
-	logrus.Debugf("orderedRules ok")
 	return nil
 }
 
@@ -377,7 +422,7 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 		condition = strings.Replace(condition, " and ", " && ", -1)
 		condition = strings.Replace(condition, " or ", " || ", -1)
 
-		logrus.Debugf("CONDITION CODE=%s", condition)
+		logrus.Debugf("CONDITION CODE = %s", condition)
 
 		return condition
 	} else {
