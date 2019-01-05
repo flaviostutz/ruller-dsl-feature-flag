@@ -1,6 +1,12 @@
 #GENERATE CODE FROM SAMPLE JSON USING DSLTOOL
-FROM flaviostutz/ruller-dsl-feature-flag as RULES_BUILD
+FROM flaviostutz/ruller-dsl-feature-flag as BUILD
 ENV LOG_LEVEL 'info'
+
+RUN curl https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz --output /opt/GeoLite2-City.tar.gz
+RUN cd /opt && \
+    tar -xvf GeoLite2-City.tar.gz && \
+    mv */GeoLite2-City.mmdb /opt/Geolite2-City.mmdb
+
 ADD /domains.json /opt/
 ADD /menu.json /opt/
 RUN ruller-dsl-feature-flag \
@@ -22,7 +28,8 @@ RUN go get -v sample-json
 #RUNTIME CONTAINER
 # FROM scratch
 FROM golang:1.10
-COPY --from=RULES_BUILD /go/bin/* /bin/
+COPY --from=BUILD /go/bin/* /bin/
+COPY --from=BUILD /opt/Geolite2-City.mmdb /opt/
 ADD /group1.txt /opt/group1.txt
 ADD /startup.sh /
 CMD [ "sh", "-C", "/startup.sh" ]

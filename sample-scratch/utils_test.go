@@ -83,3 +83,22 @@ func TestRandomPerc3(t *testing.T) {
 	assert.Equal(t, 24801, trues)
 	assert.Equal(t, 75199, falses)
 }
+
+func TestVersionCheck(t *testing.T) {
+	assert.True(t, versionCheck("2.2", ">=1.3, <=4.5"))
+	assert.False(t, versionCheck("0.2", ">100.3, <400.5"))
+	assert.True(t, versionCheck("0.2", ">0.1, <=0.2"))
+	assert.False(t, versionCheck("0.1", ">0.1, <=0.2"))
+	assert.True(t, versionCheck("0.1.1", ">0.1, <=0.2"))
+	assert.True(t, versionCheck("1.5", ">=1.5, <=1.5"))
+}
+
+func TestDateAfter(t *testing.T) {
+	assert.True(t, after("2018-11-11T11:11:11+00:00"))
+	assert.False(t, after("2048-11-11T11:11:11+00:00"))
+}
+
+func TestDateBefore(t *testing.T) {
+	assert.False(t, before("2018-11-11T21:11:11+00:00"))
+	assert.True(t, before("2048-11-11T21:11:11+00:00"))
+}

@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	mapid = 0
+	mapidc = 0
 )
 
 func main() {
@@ -223,16 +223,6 @@ func staticAttributeCode(attributeName string, attributeValue interface{}, depth
 		mapvar = fmt.Sprintf("output%d", depth)
 	}
 
-	// output1 := make(map[string]interface{})
-	// output["options"] = output1
-	// output1["type"] = "brace"
-	// output1["qtty"] = 123
-
-	// output2 := make(map[string]interface{})
-	// output1["advanced"] = output2
-	// output2["tip1"] = "abc"
-	// output2["tip2"] = "xyz"
-
 	if reflect.ValueOf(attributeValue).Kind() == reflect.Map {
 		if attributeName == "_items" || !strings.HasPrefix(attributeName, "_") {
 			map1 := attributeValue.(map[string]interface{})
@@ -259,10 +249,6 @@ func staticAttributeCode(attributeName string, attributeValue interface{}, depth
 }
 
 func traverseConditionCode(map1 map[string]interface{}, defaultConditionStr string, inputTypes map[string]ruller.InputType, ruleGroupName string, seed string) error {
-	// logrus.Debugf("MMMMMMMMMM %s", map1)
-	// if map1 == nil {
-	// 	return nil
-	// }
 	createDefaultCondition := true
 	for k, v := range map1 {
 		// logrus.Debugf("KKKKKK %s %s", k, v)
@@ -295,15 +281,16 @@ func traverseConditionCode(map1 map[string]interface{}, defaultConditionStr stri
 
 func orderedRules(map1 map[string]interface{}, parentid int, ruleGroupName string, rules *[]map[string]interface{}) error {
 	logrus.Debugf("orderedRules parentid=%d", parentid)
-	mapid = mapid + 1
+	mapidc = mapidc + 1
+	mapid := mapidc
 	map1["_id"] = mapid
 	map1["_parentid"] = fmt.Sprintf("%d", parentid)
 	map1["_ruleGroupName"] = ruleGroupName
 	*rules = append(*rules, map1)
+	logrus.Debugf("Adding rule %s", map1)
 	for k, v := range map1 {
-		logrus.Debugf("attribute %s", k)
 		if k == "_items" {
-			logrus.Debugf("attribute %s is a _items with children rules", k)
+			logrus.Debugf("attribute %s has children rules", k)
 			if reflect.ValueOf(v).Kind() == reflect.Slice {
 				logrus.Debugf("attribute %s is an array", k)
 				items := v.([]interface{})
@@ -318,8 +305,8 @@ func orderedRules(map1 map[string]interface{}, parentid int, ruleGroupName strin
 				logrus.Debugf("attribute %s is map. calling recursive", k)
 				orderedRules(v.(map[string]interface{}), mapid, ruleGroupName, rules)
 			}
-		} else if !strings.HasPrefix(k, "_") {
-			logrus.Debugf("attribute %s is a static rule member", k)
+			// } else if !strings.HasPrefix(k, "_") {
+			// 	logrus.Debugf("attribute %s is a static rule member", k)
 		}
 	}
 	return nil

@@ -3,4 +3,4 @@ set -e
 set -x
 
 echo "Starting Sample JSON rules..."
-sample-json
+sample-json --geolite2-db=/opt/Geolite2-City.mmdb

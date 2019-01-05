@@ -37,7 +37,7 @@ func after(datestr string) bool {
 	if err != nil {
 		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
 	}
-	return time1.After(time.Now())
+	return time.Now().After(time1)
 }
 
 func before(datestr string) bool {
@@ -45,7 +45,7 @@ func before(datestr string) bool {
 	if err != nil {
 		panic(fmt.Errorf("Date %s is invalid. err=%s", datestr, err))
 	}
-	return time1.Before(time.Now())
+	return time.Now().Before(time1)
 }
 
 func randomPerc(percent int, reference interface{}, seed int) bool {
