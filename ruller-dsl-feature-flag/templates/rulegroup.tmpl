@@ -1,3 +1,7 @@
+	//CONFIG
+	ruller.SetDefaultFlatten("{{._ruleGroupName}}", {{._config.flatten}})
+	ruller.SetDefaultKeepFirst("{{._ruleGroupName}}", {{._config.keep_first}})
+
 	//INITIALIZE GROUPS
 {{ range $gn, $gc := ._groupCodes }}
 	{{ $gc -}}
