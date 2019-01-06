@@ -7,10 +7,7 @@ RUN go get -v ruller-dsl-feature-flag
 
 #now build source code
 ADD ruller-dsl-feature-flag $GOPATH/src/ruller-dsl-feature-flag
-
 ADD ruller-dsl-feature-flag/templates /opt/templates
-
 RUN go get -v ruller-dsl-feature-flag
-RUN go test -v ruller-dsl-feature-flag
 
 RUN cp /go/bin/* /bin/

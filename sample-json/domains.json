@@ -1,8 +1,7 @@
 {
     "_config": {
         "seed": 123,
-        "default_condition": true,
-        "keep_first": true
+        "default_condition": true
     },
     "_items": [{
             "provider": "aws",

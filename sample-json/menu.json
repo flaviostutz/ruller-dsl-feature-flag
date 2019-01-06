@@ -41,7 +41,7 @@
             "_condition": "input:_ip_city=='Brasília' or input:state~='DF|RJ'",
             "_items": [{
                     "label": "menu2.1",
-                    "_condition": "before('2018-11-30T23:32:21+00:00')"
+                    "_condition": "after('2018-11-30T23:32:21+00:00')"
                 },
                 {
                     "label": "menu2.2",

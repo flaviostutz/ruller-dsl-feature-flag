@@ -17,9 +17,7 @@ import (
 	version "github.com/hashicorp/go-version"
 )
 
-func main() {
-	logrus.SetLevel(logrus.DebugLevel)
-	logrus.Infof("====Starting Rules Server====")
+func rules() {
 
 {{ range $name, $ruleGroup := . }}
 	//
@@ -29,7 +27,6 @@ func main() {
 
 {{ end }}
 
-	ruller.StartServer()
 }
 
 {{ template "utils.tmpl" . }}

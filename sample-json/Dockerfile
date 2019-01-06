@@ -12,15 +12,16 @@ ADD /menu.json /opt/
 RUN ruller-dsl-feature-flag \
     --log-level=debug \
     --source=/opt/domains.json,/opt/menu.json \
-    --target=/opt/main.go
+    --target=/opt/rules.go
 
 #just for build cache optimization
 ADD /main.dep $GOPATH/src/sample-json/main.go
 RUN go get -v sample-json
 
 #now build generated code
-RUN cat -n /opt/main.go
-RUN cp /opt/main.go $GOPATH/src/sample-json/
+RUN cat -n /opt/rules.go
+RUN cp /opt/rules.go $GOPATH/src/sample-json/
+ADD /main.go $GOPATH/src/sample-json/
 RUN go get -v sample-json
 
 

@@ -83,7 +83,6 @@ func main() {
 		//PREPARE CONFIGURATIONS
 		logrus.Debugf("CONFIGURATIONS")
 		hashSeed := 1234
-		keepFirst := true
 		inputTypes := make(map[string]ruller.InputType)
 		defaultConditionStr := "true"
 		config, exists := jsonRules["_config"].(map[string]interface{})
@@ -107,22 +106,7 @@ func main() {
 					panic(fmt.Errorf("_config seed exists but is not Float64"))
 				}
 			}
-
-			kf, exists := config["keep_first"]
-			if exists {
-				if reflect.ValueOf(dc).Kind() == reflect.Bool {
-					keepFirst = kf.(bool)
-				} else {
-					panic(fmt.Errorf("default_condition exists but is not Float64"))
-				}
-			}
-
-		} else {
-			config = make(map[string]interface{})
 		}
-		// config["seed"] = hashSeed
-		config["keep_first"] = keepFirst
-		templateRule["_config"] = config
 
 		//PREPARE "_condition" ATTRIBUTES (generate Go code)
 		logrus.Debugf("_CONDITION ATTRIBUTES")
