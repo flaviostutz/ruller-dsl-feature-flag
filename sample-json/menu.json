@@ -2,8 +2,7 @@
     "label": "my root label",
     "_config": {
         "seed ": 123,
-        "default_condition": true,
-        "debug_condition": true
+        "default_condition": true
     },
     "_groups": {
         "engineersid":["12","34","32","33","333","211"],

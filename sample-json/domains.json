@@ -28,7 +28,7 @@
             "_items": [{
                     "region": "azure-brazil",
                     "login": "login.azure-brazil.test.com",
-                    "_condition": "input:_country=='Brazil'"
+                    "_condition": "input:_ip_country=='Brazil'"
                 },
                 {
                     "region": "azure-ny",
