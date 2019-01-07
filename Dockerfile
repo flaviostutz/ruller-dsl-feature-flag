@@ -10,4 +10,6 @@ ADD ruller-dsl-feature-flag $GOPATH/src/ruller-dsl-feature-flag
 ADD ruller-dsl-feature-flag/templates /opt/templates
 RUN go get -v ruller-dsl-feature-flag
 
+ENV CONDITION_DEBUG false
+
 RUN cp /go/bin/* /bin/

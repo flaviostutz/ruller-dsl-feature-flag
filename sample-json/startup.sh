@@ -3,4 +3,8 @@ set -e
 set -x
 
 echo "Starting Sample JSON rules..."
-sample-json --geolite2-db=/opt/Geolite2-City.mmdb
+sample-json \
+    --log-level=$LOG_LEVEL \
+    --geolite2-db=/opt/Geolite2-City.mmdb \
+    --city-state-db=/opt/city-state.csv
+    

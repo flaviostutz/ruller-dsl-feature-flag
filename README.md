@@ -25,6 +25,10 @@ curl -X POST \
 }
 ```
 
+## Runtime parameters
+
+* The same as http://github.com/flaviostutz/ruller. Check documentation for details
+
 ## Feature selection language
 
 * The language is a JSON file with some semantics regarding to feature attributes and condition attributes organized in a tree, so that attributes and conditions from a parent are inherited by its children

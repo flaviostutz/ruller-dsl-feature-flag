@@ -5,7 +5,7 @@ services:
   sample-json:
     build: .
     environment:
-      - LOG_LEVEL=debug
+      - LOG_LEVEL=info
     ports:
       - 3000:3000
     depends_on: 

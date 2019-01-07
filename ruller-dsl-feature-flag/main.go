@@ -19,7 +19,8 @@ import (
 )
 
 var (
-	mapidc = 0
+	mapidc         = 0
+	conditionDebug = false
 )
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 	logLevel := flag.String("log-level", "info", "debug, info, warning or error")
 	source := flag.String("source", "/opt/rules.json", "Comma separated list of files to be used as input json")
 	target := flag.String("target", "/opt/rules.go", "Output file name that will be created with the generated Go code")
+	condDebug := flag.Bool("condition-debug", false, "Whetever show output nodes with condition info for debugging")
 	flag.Parse()
 
 	switch *logLevel {
@@ -43,6 +45,8 @@ func main() {
 	default:
 		logrus.SetLevel(logrus.InfoLevel)
 	}
+
+	conditionDebug = *condDebug
 
 	sf := strings.Split(*source, ",")
 	jsonRulesMap := make(map[string]interface{})
@@ -253,6 +257,8 @@ func staticAttributeCode(attributeName string, attributeValue interface{}, depth
 			} else {
 				result = fmt.Sprintf("%s[\"%s\"] = \"%s\"\n			", mapvar, attributeName, attributeValue)
 			}
+		} else if attributeName == "_condition" && conditionDebug {
+			result = fmt.Sprintf("%s[\"%s_debug\"] = \"%s\"\n			", mapvar, attributeName, attributeValue)
 		}
 	}
 	return result
