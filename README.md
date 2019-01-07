@@ -7,6 +7,8 @@ This DSL tool will get a JSON written with some feature tree rules and generate 
 
 While developing, enter '/sample' dir and perform ```docker-compose build``` so that you can run your code against sample rules json files and check for results.
 
+If you want to create your own feature flag service, fork https://github.com/flaviostutz/ruller-sample-feature-flag and create your own rules.
+
 ## Usage
 
 ```
