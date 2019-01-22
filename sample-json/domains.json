@@ -9,13 +9,11 @@
             "provider": "aws",
             "_condition": "randomPerc(10, input:customerid)",
             "_items": [{
-                    "region": "sa-east-1",
                     "login": "login.sa-east-1.test.com",
                     "bootcamp": "bootcamp.sa-east-1.test.com",
                     "_condition": "input:_ip_country=='Brazil'"
                 },
                 {
-                    "region": "us-west-1",
                     "login": "login.us-west-1.test.com",
                     "events": "events.us-west-1.test.com",
                     "bootcamp": "bootcamp.us-west-1.test.com"
@@ -26,12 +24,10 @@
             "provider": "azure",
             "_condition": "randomPercRange(10, 50, input:customerid)",
             "_items": [{
-                    "region": "azure-brazil",
                     "login": "login.azure-brazil.test.com",
                     "_condition": "input:_ip_country=='Brazil'"
                 },
                 {
-                    "region": "azure-ny",
                     "login": "login.azure-ny.test.com",
                     "events": "events.azure-ny.test.com",
                     "bootcamp": "bootcamp.azure-ny.test.com"
@@ -41,7 +37,6 @@
         {
             "provider": "vpsdime",
             "_items": [{
-                "region": "vpsdime",
                 "login": "login.vpsdime.test.com",
                 "events": "events.azure-ny.test.com",
                 "bootcamp": "bootcamp.azure-ny.test.com"
