@@ -394,7 +394,7 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 				//update all matches that hasn't been changed on previous step
 				if !strings.Contains(sm, ".") {
 					logrus.Debugf("Updating attribute '%s' to '%s'", sm, fmt.Sprintf("%s.(string)", sm))
-					condition = strings.Replace(condition, sm, fmt.Sprintf("%s.(string)", sm), -1)
+					condition = strings.Replace(condition, "input:" + sm, fmt.Sprintf("input:%s.(string)", sm), -1)
 					condition = strings.Replace(condition, ".(string).(string)", ".(string)", -1)
 
 					//check and collect input types
