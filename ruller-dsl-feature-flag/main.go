@@ -364,7 +364,7 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 		//_condition="input:age > 30 and input:name='stutz'" ---> "input:age.(float64) > 30 and input:name.(string)=='stutz'"
 
 		//find all numeric comparisons
-		numberInputRegex := regexp.MustCompile("input:([a-z0-9-_]+)\\s*[><==]\\s*[0-9]+")
+		numberInputRegex := regexp.MustCompile("input:([a-z0-9-_]+)\\s*([><]|==|!=)\\s*[0-9]+")
 		numberMatches := numberInputRegex.FindAllStringSubmatch(condition, -1)
 		for _, numberMatch := range numberMatches {
 			logrus.Debugf("Condition number match %s - %s", numberMatch[0], numberMatch[1])

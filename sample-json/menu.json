@@ -58,6 +58,26 @@
                     "_condition": "input:_ip_state~='DF|RJ'"
                 }
             ]
+        },
+        {
+            "label": "menu3",
+            "_condition": "input:age == 44",
+            "_items": [
+                {
+                    "label": "menu3.1",
+                    "uri": "/menu3.1"
+                }
+            ]
+        },
+        {
+            "label": "menu4",
+            "_condition": "input:age != 44",
+            "_items": [
+                {
+                    "label": "menu4.1",
+                    "uri": "/menu4.1"
+                }
+            ]
         }
     ]
 }
