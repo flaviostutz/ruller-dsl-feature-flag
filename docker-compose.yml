@@ -7,3 +7,4 @@ services:
     image: flaviostutz/ruller-dsl-feature-flag
     environment:
       - LOG_LEVEL=debug
+

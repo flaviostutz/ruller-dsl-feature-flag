@@ -1,15 +1,13 @@
-FROM golang:1.10
+FROM golang:1.14.3-alpine3.11
 
-#doing dependency build separated from source build optimizes time for developer, but is not required
-#install external dependencies first
-ADD /main.dep $GOPATH/src/ruller-dsl-feature-flag/main.go
-RUN go get -v ruller-dsl-feature-flag
+WORKDIR /app
+ADD /go.mod /app/
+ADD /go.sum /app/
+RUN go mod download
 
 #now build source code
-ADD ruller-dsl-feature-flag $GOPATH/src/ruller-dsl-feature-flag
-ADD ruller-dsl-feature-flag/templates /opt/templates
-RUN go get -v ruller-dsl-feature-flag
+ADD / /app/
+RUN go build -o /bin/ruller-dsl-feature-flag
 
 ENV CONDITION_DEBUG false
 
-RUN cp /go/bin/* /bin/
