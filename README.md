@@ -38,6 +38,7 @@ curl -X POST \
 * Features are identified by an id and may have some custom attributes bound to it. All features whose "condition" attribute evaluates to true will be returned as the result of the REST call
 
 * All special functions that this DSL supports can be seen on "_condition" fields on the following sample files
-  * [menu.json](sample-json/menu.json)
-  * [domains.json](sample-json/domains.json)
+  * [menu.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/menu.json)
+  * [domains.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/domains.json)
+  * [screens.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/screens.json)
 
