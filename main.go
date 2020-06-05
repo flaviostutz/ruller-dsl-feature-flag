@@ -200,7 +200,7 @@ func main() {
 	}
 
 	logrus.Debugf("Generating Go code")
-	sourceCode, err := executeTemplate("/opt/templates", "main.tmpl", templateRulesMap)
+	sourceCode, err := executeTemplate("/app/templates", "main.tmpl", templateRulesMap)
 	if err != nil {
 		panic(err)
 	}
