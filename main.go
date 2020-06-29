@@ -351,7 +351,7 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 
 		//GROUP REFERENCES TO STRING
 		//_condition="group:members" ---> ""members""
-		groupRegex := regexp.MustCompile("contains\\(\\s*group:([a-z0-9_-]+)\\s*,\\s*([0-9a-z:]+)\\s*\\)")
+		groupRegex := regexp.MustCompile("contains\\(\\s*group:([a-z0-9_-]+)\\s*,\\s*([0-9a-z:_]+)\\s*\\)")
 		condition = groupRegex.ReplaceAllString(condition, "groupContains(\""+ruleGroupName+"\",\"$1\",$2)")
 
 		//RANDOM PERC REFERENCES
