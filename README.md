@@ -11,20 +11,58 @@ If you want to create your own feature flag service, fork https://github.com/fla
 
 ## Usage
 
+* Create a project structure just like https://github.com/flaviostutz/ruller-sample-feature-flag
+
+* Create infra.json
+
+```json
+{
+    "_config": {
+        "flatten": true,
+    },
+    "_items": [{
+            "provider": "aws",
+            "_condition": "randomPerc(10, input:customerid)"
+        },
+        {
+            "provider": "azure",
+            "_condition": "randomPercRange(10, 50, input:customerid)"
+        },
+        {
+            "provider": "vpsdime"
+        }
+    ]
+}
 ```
-cd sample-json
+
+* Create a docker-compose.yml
+
+```yml
+version: '3.5'
+services:
+  sample:
+    build: .
+    environment:
+      - LOG_LEVEL=info
+    ports:
+      - 3001:3000
+```
+
+* Run server
+
+```sh
 docker-compose up -d --build
+```
+
+* Execute some queries to determine which infra structure to use
+
+```sh
 curl -X POST \
-  http://localhost:3000/rules/menu \
+  http://localhost:3000/rules/infra \
   -H 'Content-Type: application/json' \
   -H 'X-Forwarded-For: 177.79.35.49' \
   -H 'cache-control: no-cache' \
-  -d '{
-	"age": 44,
-	"customerid": "22111",
-	"state": "DF",
-	"app_version": "2.2"
-}
+  -d '{}
 ```
 
 ## Runtime parameters
