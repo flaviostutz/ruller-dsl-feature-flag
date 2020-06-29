@@ -101,3 +101,10 @@ curl -X POST \
   * [domains.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/domains.json)
   * [screens.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/screens.json)
 
+## Development tips
+
+* After closing a version
+  * Tag the repository code
+  * Check the autobuild on Dockerhub to see if all went well and that the new tag was created
+  * Update and test the example project https://github.com/flaviostutz/ruller-sample-feature-flag
+
