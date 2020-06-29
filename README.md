@@ -62,7 +62,28 @@ curl -X POST \
   -H 'Content-Type: application/json' \
   -H 'X-Forwarded-For: 177.79.35.49' \
   -H 'cache-control: no-cache' \
-  -d '{}
+  -d '{"customerid": "2118"}
+```
+
+* In this case, customer "2118" will always use the "aws" infrastructure
+
+```sh
+{"_condition_debug":"randomPerc(10, input:customerid)","_rule":"2","provider":"aws"}
+```
+
+* Change customerid and see other infra structures being selected
+
+```sh
+curl -X POST \
+  http://localhost:3000/rules/infra \
+  -H 'Content-Type: application/json' \
+  -H 'X-Forwarded-For: 177.79.35.49' \
+  -H 'cache-control: no-cache' \
+  -d '{"customerid": "6843"}
+```
+
+```sh
+{"_condition_debug":"randomPercRange(10, 50, input:customerid)","_rule":"3","provider":"azure"}
 ```
 
 ## Runtime parameters
