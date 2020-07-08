@@ -109,6 +109,13 @@ curl -X POST \
 
 ## Development tips
 
+* Always explicitly define the `target` and `templdir` runtime parameters on development time:
+
+```sh
+go build
+./ruller-dsl-feature-flag --source <paths to rule json files> --target ./rules.go --templdir ./templates
+```
+
 * After closing a version
   * Tag the repository code
   * Check the autobuild on Dockerhub to see if all went well and that the new tag was created
