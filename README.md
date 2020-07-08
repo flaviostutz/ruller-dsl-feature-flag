@@ -88,7 +88,13 @@ curl -X POST \
 
 ## Runtime parameters
 
-* The same as http://github.com/flaviostutz/ruller. Check documentation for details
+* The same as http://github.com/flaviostutz/ruller with the addition of `--templdir`:
+
+1. `--source`: a comma-separated list of `.json` files where `ruller-dsl-feature-flag` will read the rules from;
+2. `--target`: the path of the file where the Golang ruller engine will be generated;
+3. `--templdir`: the path where the template files can be found;
+4. `--log-level`: the level of logging `ruller-dsl-feature-flag` will output to STDOUT;
+5. `--condition-debug`: if present, the resulting Golang ruller engine will output debug info when processing feature flags;
 
 ## Feature selection language
 
@@ -102,6 +108,13 @@ curl -X POST \
   * [screens.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/screens.json)
 
 ## Development tips
+
+* Always explicitly define the `target` and `templdir` runtime parameters on development time:
+
+```sh
+go build
+./ruller-dsl-feature-flag --source <paths to rule json files> --target ./rules.go --templdir ./templates
+```
 
 * After closing a version
   * Tag the repository code

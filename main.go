@@ -29,6 +29,7 @@ func main() {
 	logLevel := flag.String("log-level", "info", "debug, info, warning or error")
 	source := flag.String("source", "/opt/rules.json", "Comma separated list of files to be used as input json")
 	target := flag.String("target", "/opt/rules.go", "Output file name that will be created with the generated Go code")
+	templDir := flag.String("templdir", "/app/templates", "Directory where the templates can be found")
 	condDebug := flag.Bool("condition-debug", false, "Whetever show output nodes with condition info for debugging")
 	flag.Parse()
 
@@ -200,7 +201,7 @@ func main() {
 	}
 
 	logrus.Debugf("Generating Go code")
-	sourceCode, err := executeTemplate("/app/templates", "main.tmpl", templateRulesMap)
+	sourceCode, err := executeTemplate(*templDir, "main.tmpl", templateRulesMap)
 	if err != nil {
 		panic(err)
 	}
