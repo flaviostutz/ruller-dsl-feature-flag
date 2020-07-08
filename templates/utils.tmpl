@@ -63,6 +63,14 @@ func groupContains(ruleGroup string, groupName string, element string) bool {
 	return exists
 }
 
+func concatString(element ...string) string {
+	newElement := element[0]
+	for i := 1; i < len(element); i++ {
+		newElement = newElement + element[i]
+	}
+	return newElement
+}
+
 func loadGroupFromFile(groups map[string]map[string]map[string]bool, ruleGroup string, groupName string, sourceFile string) {
 	logrus.Infof("Loading rulegroup %s group %s elements from %s into memory", ruleGroup, groupName, sourceFile)
 	file, err := os.Open(sourceFile)
