@@ -350,6 +350,7 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 		regexExpreRegex := regexp.MustCompile("(input:[a-z0-9-_]+)\\s*~=\\s*'(.+)'")
 		condition = regexExpreRegex.ReplaceAllString(condition, "match($1,\"$2\")")
 
+		//CONCAT
 		concatRegex := regexp.MustCompile("concat\\(\\s*([a-z0-9_:()',]+)\\s*\\)")
 		condition = concatRegex.ReplaceAllString(condition, "concatString($1)")
 
@@ -390,29 +391,33 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 		}
 
 		//cast all other attributes to string
-		inputNameRegex2 := regexp.MustCompile("input:([a-z0-9-_\\.]+)")
+		inputNameRegex2 := regexp.MustCompile("input:([a-z0-9-_\\.]+)[,\\)\\s]")
 		matches := inputNameRegex2.FindAllStringSubmatch(condition, -1)
 		for _, match := range matches {
 			if len(match) > 1 {
-				sm := match[1]
+				fullMatch := match[0]  // full match. e.g. input:field)
+				fieldMatch := match[1] // single match. e.g. field
+
 				//update all matches that hasn't been changed on previous step
-				if !strings.Contains(sm, ".") {
-					logrus.Debugf("Updating attribute '%s' to '%s'", sm, fmt.Sprintf("%s.(string)", sm))
-					condition = strings.Replace(condition, "input:"+sm, fmt.Sprintf("input:%s.(string)", sm), -1)
+				if !strings.Contains(fieldMatch, ".") {
+					logrus.Debugf("Updating attribute '%s' to '%s'", fieldMatch, fmt.Sprintf("%s.(string)", fieldMatch))
+
+					replacement := strings.Replace(fullMatch, fieldMatch, fieldMatch+".(string)", 1) // only the single match should have .(string) appended to it
+					condition = strings.Replace(condition, fullMatch, replacement, -1)               // e.g. `input:field)` becomes `input:field.(string))`
 					condition = strings.Replace(condition, ".(string).(string)", ".(string)", -1)
 
 					//check and collect input types
-					it, exists := inputTypes[sm]
+					it, exists := inputTypes[fieldMatch]
 					if exists {
 						if it != ruller.String {
-							panic(fmt.Errorf("Attribute '%s' was defined as '%v' and now is being redefined as 'String'. Aborting", sm, typeName(it)))
+							panic(fmt.Errorf("Attribute '%s' was defined as '%v' and now is being redefined as 'String'. Aborting", fieldMatch, typeName(it)))
 						}
 					} else {
-						inputTypes[sm] = ruller.String
-						logrus.Debugf("Input %s is String", sm)
+						inputTypes[fieldMatch] = ruller.String
+						logrus.Debugf("Input %s is String", fieldMatch)
 					}
 				} else {
-					logrus.Debugf("Ignoring already casted attribute %s", sm)
+					logrus.Debugf("Ignoring already casted attribute %s", fieldMatch)
 				}
 			}
 		}
@@ -432,7 +437,6 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 		logrus.Debugf("CONDITION CODE = %s", condition)
 
 		return condition
-	} else {
-		panic(fmt.Errorf("Invalid non string '_condition' field. '%v'", value))
 	}
+	panic(fmt.Errorf("Invalid non string '_condition' field. '%v'", value))
 }
