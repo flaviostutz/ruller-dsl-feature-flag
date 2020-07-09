@@ -391,18 +391,18 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 		}
 
 		//cast all other attributes to string
-		inputNameRegex2 := regexp.MustCompile("input:([a-z0-9-_\\.]+)[,\\)\\s]")
+		inputNameRegex2 := regexp.MustCompile("input:([a-z0-9-_\\.]+)([,\\)\\s><]|==|!=)")
 		matches := inputNameRegex2.FindAllStringSubmatch(condition, -1)
 		for _, match := range matches {
 			if len(match) > 1 {
 				fullMatch := match[0]  // full match. e.g. input:field)
-				fieldMatch := match[1] // single match. e.g. field
+				fieldMatch := match[1] // field match. e.g. field
 
 				//update all matches that hasn't been changed on previous step
 				if !strings.Contains(fieldMatch, ".") {
 					logrus.Debugf("Updating attribute '%s' to '%s'", fieldMatch, fmt.Sprintf("%s.(string)", fieldMatch))
 
-					replacement := strings.Replace(fullMatch, fieldMatch, fieldMatch+".(string)", 1) // only the single match should have .(string) appended to it
+					replacement := strings.Replace(fullMatch, fieldMatch, fieldMatch+".(string)", 1) // only the field match should have .(string) appended to it
 					condition = strings.Replace(condition, fullMatch, replacement, -1)               // e.g. `input:field)` becomes `input:field.(string))`
 					condition = strings.Replace(condition, ".(string).(string)", ".(string)", -1)
 
