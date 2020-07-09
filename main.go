@@ -350,9 +350,12 @@ func conditionCode(value interface{}, inputTypes map[string]ruller.InputType, ru
 		regexExpreRegex := regexp.MustCompile("(input:[a-z0-9-_]+)\\s*~=\\s*'(.+)'")
 		condition = regexExpreRegex.ReplaceAllString(condition, "match($1,\"$2\")")
 
+		concatRegex := regexp.MustCompile("concat\\(\\s*([a-z0-9_:()',]+)\\s*\\)")
+		condition = concatRegex.ReplaceAllString(condition, "concatString($1)")
+
 		//GROUP REFERENCES TO STRING
 		//_condition="group:members" ---> ""members""
-		groupRegex := regexp.MustCompile("contains\\(\\s*group:([a-z0-9_-]+)\\s*,\\s*([0-9a-z:_]+)\\s*\\)")
+		groupRegex := regexp.MustCompile("contains\\(\\s*group:([a-z0-9_-]+)\\s*,\\s*([0-9a-zA-Z:_,()'.\\\"\\[\\]]+)\\s*\\)")
 		condition = groupRegex.ReplaceAllString(condition, "groupContains(\""+ruleGroupName+"\",\"$1\",$2)")
 
 		//RANDOM PERC REFERENCES
