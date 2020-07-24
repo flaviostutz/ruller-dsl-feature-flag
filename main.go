@@ -92,6 +92,7 @@ func main() {
 		keepFirst := true
 		inputTypes := make(map[string]ruller.InputType)
 		defaultConditionStr := "true"
+		lazyEvaluation := false
 		config, exists := jsonRules["_config"].(map[string]interface{})
 		if exists {
 			dc, exists := config["default_condition"]
@@ -129,6 +130,15 @@ func main() {
 					keepFirst = kf.(bool)
 				} else {
 					panic(fmt.Errorf("keep_first exists but is not boolean"))
+				}
+			}
+
+			le, exists := config["lazy_evaluation"]
+			if exists {
+				if reflect.ValueOf(le).Kind() == reflect.Bool {
+					lazyEvaluation = le.(bool)
+				} else {
+					panic(fmt.Errorf("lazy_evaluation config exists but is not boolean"))
 				}
 			}
 
@@ -183,13 +193,16 @@ func main() {
 		}
 		templateRule["_groupCodes"] = groupCodes
 
-		logrus.Debugf("REQUIRED INPUTS")
-		requiredInputCodes := make(map[string]string)
-		for in, it := range inputTypes {
-			icode := fmt.Sprintf("ruller.AddRequiredInput(\"%s\", \"%s\", ruller.%s)", ruleGroupName, in, typeName(it))
-			requiredInputCodes[in] = icode
+		if lazyEvaluation {
+			// only validate required inputs if
+			logrus.Debugf("REQUIRED INPUTS")
+			requiredInputCodes := make(map[string]string)
+			for in, it := range inputTypes {
+				icode := fmt.Sprintf("ruller.AddRequiredInput(\"%s\", \"%s\", ruller.%s)", ruleGroupName, in, typeName(it))
+				requiredInputCodes[in] = icode
+			}
+			templateRule["_requiredInputCodes"] = requiredInputCodes
 		}
-		templateRule["_requiredInputCodes"] = requiredInputCodes
 
 		//ORDERED RULES
 		logrus.Debugf("ORDERED RULES")
