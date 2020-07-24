@@ -194,7 +194,7 @@ func main() {
 		templateRule["_groupCodes"] = groupCodes
 
 		if lazyEvaluation {
-			// only validate required inputs if
+			// only validate required inputs if lazy evaluation mode is active
 			logrus.Debugf("REQUIRED INPUTS")
 			requiredInputCodes := make(map[string]string)
 			for in, it := range inputTypes {
