@@ -107,6 +107,24 @@ curl -X POST \
   * [domains.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/domains.json)
   * [screens.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/screens.json)
 
+* You can also control some rule computation behaviors with the help of the `_config` key on your `.json` file. E.g.
+  ```json
+  {
+    "_config": {
+      "seed": 123,
+      "default_condition": true,
+      "lazy_evalutation": true,
+      "flatten": true
+    },
+    "_groups": [...],
+    "_items": [...]
+  }
+  ```
+  * `seed`: controls the pseudo-random generator seed in use. Everytime you change it, new random numbers will be assigned from you input;
+  * `default_condition`: tells which value should be returned when a rule have no condition assigned;
+  * `lazy_evaluation`: if set to `true`, for any missing input the resulting ruller return error on runtime and does not evaluate the rules, even those that have nothing to do with the missing input. The default value of this param is `false`, meaning the resulting ruller will evaluate all rules even though an input is missing;
+  * `flatten`: the output map will get flattened.
+
 ## Development tips
 
 * Always explicitly define the `target` and `templdir` runtime parameters on development time:
@@ -120,4 +138,5 @@ go build
   * Tag the repository code
   * Check the autobuild on Dockerhub to see if all went well and that the new tag was created
   * Update and test the example project https://github.com/flaviostutz/ruller-sample-feature-flag
+
 

@@ -109,3 +109,13 @@ func loadGroupArray(groups map[string]map[string]map[string]bool, ruleGroup stri
 		}
 	}
 }
+
+func recoverNilAutoConversionError() {
+	if r := recover(); r != nil {
+		if strings.Contains(r.(error).Error(), "interface conversion: interface {} is nil") {
+			logrus.Debugf("Recovered ", r)	
+		} else {
+			panic(r.(error))
+		}
+	}
+}
