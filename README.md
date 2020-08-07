@@ -90,7 +90,7 @@ curl -X POST \
 
 * The same as http://github.com/flaviostutz/ruller with the addition of `--templdir`:
 
-1. `--source`: a comma-separated list of `.json` files where `ruller-dsl-feature-flag` will read the rules from;
+1. `--source`: a comma-separated list of Glob patterns or `.json` files where `ruller-dsl-feature-flag` will read the rules from. Attention: Glob patterns must be enclosed by double quotes on the command line;
 2. `--target`: the path of the file where the Golang ruller engine will be generated;
 3. `--templdir`: the path where the template files can be found;
 4. `--log-level`: the level of logging `ruller-dsl-feature-flag` will output to STDOUT;
@@ -107,7 +107,7 @@ curl -X POST \
   * [domains.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/domains.json)
   * [screens.json](https://github.com/flaviostutz/ruller-sample-feature-flag/blob/master/rules/screens.json)
 
-* You can also control some rule computation behaviors with the help of the `_config` key on your `.json` file. E.g.
+* You can also control some rule computation behaviors with the help of `_config` key on your `.json` file. E.g.
   ```json
   {
     "_config": {
@@ -127,11 +127,11 @@ curl -X POST \
 
 ## Development tips
 
-* Always explicitly define the `target` and `templdir` runtime parameters on development time:
+* Always explicitly define the `target` and `templdir` runtime parameters on development time. E.g.:
 
 ```sh
 go build
-./ruller-dsl-feature-flag --source <paths to rule json files> --target ./rules.go --templdir ./templates
+./ruller-dsl-feature-flag --source "example-rules/*.json" --target ./rules.go --templdir ./templates
 ```
 
 * After closing a version

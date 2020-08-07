@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -51,26 +52,36 @@ func main() {
 
 	sf := strings.Split(*source, ",")
 	jsonRulesMap := make(map[string]interface{})
-	for _, sourceFile := range sf {
-		logrus.Infof("Loading json rules %s", sourceFile)
-		jsonFile, err := os.Open(sourceFile)
+	for _, pattern := range sf {
+		logrus.Infof("Processing glob pattern %s", pattern)
+		files, err := filepath.Glob(pattern)
 		if err != nil {
-			logrus.Errorf("Error loading json file. err=%s", err)
+			logrus.Error(err)
 			os.Exit(1)
 		}
-		defer jsonFile.Close()
 
-		byteValue, _ := ioutil.ReadAll(jsonFile)
-		var jsonRules map[string]interface{}
-		json.Unmarshal([]byte(byteValue), &jsonRules)
+		logrus.Infof("source files matches: %v", files)
+		for _, sourceFile := range files {
+			logrus.Infof("Processing sourceFile %s", sourceFile)
+			jsonFile, err := os.Open(sourceFile)
+			if err != nil {
+				logrus.Errorf("Error loading json file. err=%s", err)
+				os.Exit(1)
+			}
+			defer jsonFile.Close()
 
-		nameregex := regexp.MustCompile("\\/([a-z0-9_-]*)\\..*")
-		namer := nameregex.FindStringSubmatch(sourceFile)
-		if len(namer) > 1 {
-			name := namer[1]
-			jsonRulesMap[name] = jsonRules
-		} else {
-			logrus.Warnf("Couldn't find a valid group rule name in file name. filename=%s", sourceFile)
+			byteValue, _ := ioutil.ReadAll(jsonFile)
+			var jsonRules map[string]interface{}
+			json.Unmarshal([]byte(byteValue), &jsonRules)
+
+			nameregex := regexp.MustCompile("\\/([a-z0-9_-]*)\\..*")
+			namer := nameregex.FindStringSubmatch(sourceFile)
+			if len(namer) > 1 {
+				name := namer[1]
+				jsonRulesMap[name] = jsonRules
+			} else {
+				logrus.Warnf("Couldn't find a valid group rule name in file name. filename=%s", sourceFile)
+			}
 		}
 	}
 

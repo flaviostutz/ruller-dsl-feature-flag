@@ -1,0 +1,65 @@
+{
+    "label": "my root label",
+    "_config": {
+        "seed ": 123,
+        "default_condition": true
+    },
+    "_groups": {
+        "engineersid":["12","34","32","33","333","211"],
+        "customers1":"/groups/group1.txt"
+    },
+    "_items": [{
+            "label": "menu1",
+            "_items": [{
+                    "label": "menu1.1",
+                    "uri": "/menu1.1",
+                    "options": {
+                        "opt1": "123",
+                        "opt2": {
+                            "type": "simple",
+                            "qtty": 34
+                        }
+                    },
+                    "_condition": "true"
+                }, {
+                    "label": "menu1.2",
+                    "_condition": "input:age > 30 and randomPerc(30,input:customerid) or contains(group:engineersid,input:customerid)",
+                    "_items": [{
+                            "label": "menu1.2.1 "
+                        },
+                        {
+                            "label": "menu1.2.2",
+                            "_condition": "randomPerc(50,input:customerid)"
+                        }
+                    ]
+                }, {
+                    "label": "menu1.3",
+                    "_condition": "input:age > 30"
+                }, {
+                    "label": "menu1.4",
+                    "_condition": "randomPerc(30,input:customerid)"
+                }, {
+                    "label": "menu1.5",
+                    "_condition": "contains(group:engineersid,input:customerid)"
+                }, {
+                    "label": "menu1.6",
+                    "_condition": "contains(group:customers1,input:customerid)"
+                }
+            ]
+        },
+        {
+            "label": "menu2",
+            "_items": [{
+                    "label": "menu2.1",
+                    "_condition": "after('2018-11-30T23:32:21+00:00')"
+                }, {
+                    "label": "menu2.2",
+                    "_condition": "versionCheck(input:app_version, '>=1.3, <4.5')"
+                }, {
+                    "label": "menu2.3",
+                    "_condition": "input:_ip_state~='DF|RJ'"
+                }
+            ]
+        }
+    ]
+}
