@@ -113,7 +113,7 @@ curl -X POST \
     "_config": {
       "seed": 123,
       "default_condition": true,
-      "lazy_evalutation": true,
+      "lazy_evaluation": true,
       "flatten": true
     },
     "_groups": [...],
