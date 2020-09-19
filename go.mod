@@ -3,7 +3,8 @@ module github.com/flaviostutz/ruller-dsl-feature-flag
 go 1.14
 
 require (
-	github.com/flaviostutz/ruller v1.0.1
+	github.com/flaviostutz/ruller v1.1.1
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/go-version v1.2.1
 	github.com/oschwald/maxminddb-golang v1.7.0 // indirect
 	github.com/prometheus/client_golang v1.7.1 // indirect
