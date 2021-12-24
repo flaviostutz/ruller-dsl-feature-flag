@@ -245,6 +245,7 @@ func executeTemplate(dir string, templ string, input map[string]interface{}) (st
 			return strings.HasPrefix(str, prefix)
 		},
 		"attributeCode": staticAttributeCode,
+		"add": intAdd,
 	})
 	tmpl1, err := tmpl.ParseGlob(dir + "/*.tmpl")
 	buf := new(bytes.Buffer)
@@ -255,35 +256,37 @@ func executeTemplate(dir string, templ string, input map[string]interface{}) (st
 	return buf.String(), nil
 }
 
-func staticAttributeCode(attributeName string, attributeValue interface{}, depth int) string {
+func intAdd (x, y int) int {
+	return x + y
+}
+
+func staticAttributeCode(attributeName string, attributeValue interface{}, parentVar string, depth int, breadth int) string {
 	result := ""
-	mapvar := "output"
-	if depth > 0 {
-		mapvar = fmt.Sprintf("output%d", depth)
-	}
 
 	if reflect.ValueOf(attributeValue).Kind() == reflect.Map {
 		if attributeName == "_items" || !strings.HasPrefix(attributeName, "_") {
 			map1 := attributeValue.(map[string]interface{})
-			nextmapvar := fmt.Sprintf("output%d", depth+1)
+			nextmapvar := fmt.Sprintf("%s_%d%d", parentVar, depth+1, breadth)
 			result = result + fmt.Sprintf("%s := make(map[string]interface{})\n			", nextmapvar)
-			result = result + fmt.Sprintf("%s[\"%s\"] = %s\n			", mapvar, attributeName, nextmapvar)
+			result = result + fmt.Sprintf("%s[\"%s\"] = %s\n			", parentVar, attributeName, nextmapvar)
+			i := 0
 			for k, v := range map1 {
-				s := staticAttributeCode(k, v, depth+1)
+				s := staticAttributeCode(k, v, nextmapvar, depth+1, i)
+				i++
 				result = result + s
 			}
 		}
 	} else {
 		if !strings.HasPrefix(attributeName, "_") {
 			if reflect.ValueOf(attributeValue).Kind() == reflect.Bool {
-				result = fmt.Sprintf("%s[\"%s\"] = %t\n			", mapvar, attributeName, attributeValue)
+				result = fmt.Sprintf("%s[\"%s\"] = %t\n			", parentVar, attributeName, attributeValue)
 			} else if reflect.ValueOf(attributeValue).Kind() == reflect.Float64 {
-				result = fmt.Sprintf("%s[\"%s\"] = %f\n			", mapvar, attributeName, attributeValue)
+				result = fmt.Sprintf("%s[\"%s\"] = %f\n			", parentVar, attributeName, attributeValue)
 			} else {
-				result = fmt.Sprintf("%s[\"%s\"] = \"%s\"\n			", mapvar, attributeName, attributeValue)
+				result = fmt.Sprintf("%s[\"%s\"] = \"%s\"\n			", parentVar, attributeName, attributeValue)
 			}
 		} else if attributeName == "_condition" && conditionDebug {
-			result = fmt.Sprintf("%s[\"%s_debug\"] = \"%s\"\n			", mapvar, attributeName, attributeValue)
+			result = fmt.Sprintf("%s[\"%s_debug\"] = \"%s\"\n			", parentVar, attributeName, attributeValue)
 		}
 	}
 	return result

@@ -8,8 +8,10 @@
 		condition := {{._conditionCode}}
 		if condition {
 			output := make(map[string]interface{})
+{{$breadth:=0}}
 {{range $fn, $fv := .}}
-			{{attributeCode $fn $fv 0}}
+			{{attributeCode $fn $fv "output" 0 $breadth}}
+			{{$breadth = add $breadth 1}}
 {{end}}
 			return output, nil
 		}
